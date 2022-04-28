@@ -7,6 +7,9 @@ dotenv.config();
 
 const port = process.env.PORT
 
+// importing routes
+const authRoute = require('./routes/auth');
+
 // connect to database
 mongoose.connect(process.env.DB_CONNECT,()=>{
     console.log("connected to DB");
@@ -18,6 +21,9 @@ app.use(express.json());
 app.get("/",(req,res)=>{
     res.send("Root Route");
 });
+
+// Route middlewares
+app.use("/api/user",authRoute);
 
 app.listen(port,()=>{
     console.log(`App will start on localhost:${port}`);
