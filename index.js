@@ -23,7 +23,7 @@ app.get("/",(req,res)=>{
 });
 
 // Route middlewares
-app.use("/api/user",authRoute);
+app.use("",authRoute);
 
 app.listen(port,()=>{
     console.log(`App will start on localhost:${port}`);

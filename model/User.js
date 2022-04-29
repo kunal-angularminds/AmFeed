@@ -1,15 +1,10 @@
+const { number } = require('joi');
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
-    firstName : {
+    name:{
         type:String,
-        min:6,
-        max:255,
-        required:true
-    },
-    lastName:{
-        type:String,
-        min:6,
+        min : 6,
         max:255,
         required:true
     },
@@ -21,8 +16,21 @@ const userSchema = mongoose.Schema({
     },
     password:{
         type:String,
+        min:6,
         max:255,
         required:true
+    },
+    bio:{
+        type:String
+    },
+    gender:{
+        type:String
+    },
+    dob: {
+        type:Date
+    },
+    mobileNumber:{
+        type:Number
     }
 });
 
