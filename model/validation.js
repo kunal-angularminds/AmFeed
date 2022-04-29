@@ -11,4 +11,14 @@ let signupUserValidation = (data)=>{
     return schema.validate(data);
 }
 
+let loginValidation = (data)=>{
+    const schema = Joi.object({
+        email:Joi.string().required().email().min(6),
+        password:Joi.string().min(6).required()
+    })
+
+    return schema.validate(data);
+}
+
 module.exports.signupUserValidation = signupUserValidation;
+module.exports.loginValidation = loginValidation;
