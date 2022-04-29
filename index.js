@@ -3,12 +3,14 @@ const app = express();
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+var cors = require('cors');
 dotenv.config();
 
 const port = process.env.PORT
 
 // importing routes
 const authRoute = require('./routes/auth');
+const userRoute = require('./routes/userRoute');
 
 // connect to database
 mongoose.connect(process.env.DB_CONNECT,()=>{
@@ -17,6 +19,7 @@ mongoose.connect(process.env.DB_CONNECT,()=>{
 
 // using middlewares
 app.use(express.json());
+app.use(cors());
 
 app.get("/",(req,res)=>{
     res.send("Root Route");
@@ -24,6 +27,7 @@ app.get("/",(req,res)=>{
 
 // Route middlewares
 app.use("",authRoute);
+app.use('',userRoute);
 
 app.listen(port,()=>{
     console.log(`App will start on localhost:${port}`);

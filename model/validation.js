@@ -1,24 +1,46 @@
 const Joi = require('joi');
+const passwordComplexity = require("joi-password-complexity");
 
-let signupUserValidation = (data)=>{
+const complexityOptions = {
+    min: 6,
+    max: 250,
+    numeric: 1,
+    symbol: 1,
+    requirementCount: 2,
+};
+
+let signupUserValidation = (data) => {
     const schema = Joi.object({
-        firstName:Joi.string().required().min(3),
-        lastName:Joi.string().required().min(3),
-        email:Joi.string().required().min(6).email(),
-        password:Joi.string().required().min(6)
+        firstName: Joi.string().required().min(3),
+        lastName: Joi.string().required().min(3),
+        email: Joi.string().required().min(6).email(),
+        password: passwordComplexity(complexityOptions)
     });
 
     return schema.validate(data);
 }
 
-let loginValidation = (data)=>{
+let loginValidation = (data) => {
     const schema = Joi.object({
-        email:Joi.string().required().email().min(6),
-        password:Joi.string().min(6).required()
+        email: Joi.string().required().email().min(6),
+        password: Joi.string().min(6).required()
     })
 
+    return schema.validate(data);
+};
+
+let updateValidation = (data) => {
+    const schema = Joi.object({
+        name:Joi.string().required().min(6).max(255),
+        email:Joi.string().required().min(6).max(255).email(),
+        bio:Joi.string(),
+        gender : Joi.string().required(),
+        dob:Joi.date().timestamp(),
+        mobileNumber:Joi.number()
+    })
     return schema.validate(data);
 }
 
 module.exports.signupUserValidation = signupUserValidation;
 module.exports.loginValidation = loginValidation;
+module.exports.updateValidation = updateValidation;

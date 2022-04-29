@@ -12,7 +12,8 @@ const userSchema = mongoose.Schema({
         type:String,
         min:6,
         max:255,
-        required:true
+        required:true,
+        unique:false
     },
     password:{
         type:String,
@@ -27,7 +28,8 @@ const userSchema = mongoose.Schema({
         type:String
     },
     dob: {
-        type:Date
+        type:Date,
+       
     },
     mobileNumber:{
         type:Number
