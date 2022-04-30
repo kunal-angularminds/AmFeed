@@ -28,9 +28,9 @@ app.use(express.urlencoded({extended:false}));
 app.use(cors());
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-app.get("/",(req,res)=>{
-    res.send("Root Route");
-});
+// app.get("/",(req,res)=>{
+//     res.send("Root Route");
+// });
 
 
 // Route middlewares

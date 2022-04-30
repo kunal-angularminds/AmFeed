@@ -8,11 +8,13 @@ const upload = require('../upload');
 
 
 // fetch single user by id
-router.get("/user/:id",async(req,res)=>{
+router.get("/user/:id",verify,async(req,res)=>{
 
+    // res.send("get single users");
     try{
         let userId = req.params.id;
         let user = await User.findById(userId);
+        console.log(user);
         res.status(200).send(user);
     }catch(err){
         res.status(500).send(err);
