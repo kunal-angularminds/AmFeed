@@ -17,8 +17,11 @@ mongoose.connect(process.env.DB_CONNECT,()=>{
     console.log("connected to DB");
 });
 
+
+
 // using middlewares
 app.use(express.json());
+app.use(express.urlencoded({extended:false}));
 app.use(cors());
 
 app.get("/",(req,res)=>{

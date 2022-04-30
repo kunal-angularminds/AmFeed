@@ -1,4 +1,3 @@
-const { number } = require('joi');
 const mongoose = require('mongoose');
 
 const userSchema = mongoose.Schema({
@@ -28,8 +27,7 @@ const userSchema = mongoose.Schema({
         type:String
     },
     dob: {
-        type:Date,
-       
+        type:Date
     },
     mobileNumber:{
         type:Number
