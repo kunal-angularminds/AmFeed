@@ -1,13 +1,24 @@
 const mongoose = require('mongoose');
 
-const userSchema = mongoose.Schema({
-    name:{
-        type:String,
-        min : 6,
-        max:255,
-        required:true
-    },
-    
+const postSchema = mongoose.Schema({
+        userId: {
+          type: String
+        },
+        caption: {
+          type: String,
+          max: 500,
+        },
+        img: {
+          type: String,
+        },
+        likes: {
+          type: Array,
+          default: [],
+        },
+        comments:{
+          type:Array,
+          default:[]
+        }
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('Post', postSchema);
