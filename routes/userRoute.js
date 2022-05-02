@@ -12,9 +12,17 @@ router.get("/user/:id", verify, async (req, res) => {
 
     // res.send("get single users");
     try {
-        let userId = req.params.id;
-        let user = await User.findById(userId);
-        console.log(user);
+        let id = req.params.id;
+        let user = await User.findById(id);
+        // let user =  User.findById(id, function (err, docs) {
+        //     if (err){
+        //         console.log(err);
+        //     }
+        //     else{
+        //         console.log(docs);
+        //     }
+        // });
+        // console.log(user);
         res.status(200).send(user);
     } catch (err) {
         res.status(500).send(err);
@@ -40,18 +48,20 @@ router.put('/edit-profile/:id', verify, upload.single('img'), async (req, res) =
 
 
     // // working code
-    await User.findOneAndUpdate(id, user).then((data) => {
+    let updatedUser = await User.findOneAndUpdate(id, user).then((data) => {
         // res.send(data);
         if (!data) {
-            res.status(404).send({
+            return({
                 message: `Cannot update User`
             });
         } else {
-            res.send({ message: "User Details updated successfully." });
+            return({ message: "User Details updated successfully." });
         }
     }).catch((err) => {
-        res.status(500).send(err);
+        return err;
     });
+    console.log(updatedUser);
+    res.send(updatedUser);
 
 });
 
@@ -97,6 +107,7 @@ router.patch("/changePassword/:id", verify, async (req, res) => {
 
 });
 
+// remove image
 router.put("/removeProfileImage/:id", verify, async (req, res) => {
     // res.send("delete img route");
     let id = req.params.id;
