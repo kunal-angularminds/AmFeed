@@ -32,11 +32,11 @@ let loginValidation = (data) => {
 let updateValidation = (data) => {
     const schema = Joi.object({
         name:Joi.string().required().min(6).max(255),
-        email:Joi.string().required().min(6).max(255).email(),
+        email:Joi.string().required().min(6).max(255),
         bio:Joi.string(),
         gender : Joi.string().required(),
-        dob:Joi.date().timestamp(),
-        mobileNumber:Joi.number()
+        dob:Joi.date(),
+        mobileNumber:Joi.string()
     })
     return schema.validate(data);
 }

@@ -30,7 +30,10 @@ const userSchema = mongoose.Schema({
         type:Date
     },
     mobileNumber:{
-        type:Number
+        type:String
+    },
+    img:{
+        type:String
     }
 });
 

@@ -8,29 +8,110 @@ const upload = require('../upload');
 
 
 // fetch single user by id
-router.get("/user/:id",verify,async(req,res)=>{
+router.get("/user/:id", verify, async (req, res) => {
 
     // res.send("get single users");
-    try{
+    try {
         let userId = req.params.id;
         let user = await User.findById(userId);
         console.log(user);
         res.status(200).send(user);
-    }catch(err){
+    } catch (err) {
         res.status(500).send(err);
     }
 
 });
 
-router.put('/edit-profile/:id', verify, async(req, res) => {
+// editing profile information
+router.put('/edit-profile/:id', verify, upload.single('img'), async (req, res) => {
+
 
     // validating the input fields
-    // const { error, value } = updateValidation(req.body);
-    // if (error) {
-    //     return res.status(400).send(error.details[0].message);
-    // }
+    const { error, value } = updateValidation(req.body);
+    if (error) {
+        return res.status(400).send(error.details[0].message);
+    }
 
-    // let updatedUser = await User.findByIdAndUpdate(id,req.body,(err,data)=>{
+
+    const id = req.params.id;
+    let user = req.body;
+    user["img"] = req.file.path;
+    // res.send(user);
+
+
+    // // working code
+    await User.findOneAndUpdate(id, user).then((data) => {
+        // res.send(data);
+        if (!data) {
+            res.status(404).send({
+                message: `Cannot update User`
+            });
+        } else {
+            res.send({ message: "User Details updated successfully." });
+        }
+    }).catch((err) => {
+        res.status(500).send(err);
+    });
+
+});
+
+// changing the password
+router.patch("/changePassword/:id", verify, async (req, res) => {
+    let id = req.params.id;
+    let user = await User.findById(id);
+
+    // checking if the password is correct or not
+    const validPass = await bcrypt.compare(req.body.currentPassword, user.password);
+
+    if (!validPass) {
+        res.status(400).send("Entered Current Password is invalid")
+    };
+
+
+    if (req.body.newPassword === req.body.confirmPassword) {
+        // hash password
+        const salt = await bcrypt.genSaltSync(10);
+        const hashedPassword = bcrypt.hashSync(req.body.newPassword, salt);
+
+        let updatedPassword = {
+            password: hashedPassword
+        }
+
+        // update the password
+        await User.findOneAndUpdate(id, updatedPassword).then((data) => {
+            if (!data) {
+                res.status(404).send({
+                    message: `Cannot update Password`
+                });
+            } else {
+                res.send({ message: "User Password updated successfully."});
+            }
+        }).catch((err) => {
+            res.status(500).send(err);
+        });
+
+    }
+    else {
+        res.status(400).send("New Password and Confirm Password do not match");
+    }
+
+});
+
+router.put("/removeProfileImage/:id", verify, async (req, res) => {
+    // res.send("delete img route");
+    let id = req.params.id;
+    let user = await User.findById(id);
+    user.img = "";
+
+    let savedUser = await user.save();
+    res.send(savedUser);
+
+});
+
+
+module.exports = router;
+
+ // let updatedUser = await User.findByIdAndUpdate(id,req.body,(err,data)=>{
     //     if(err){
     //         res.status(400).send("Cannot Update User")
     //     }
@@ -48,28 +129,13 @@ router.put('/edit-profile/:id', verify, async(req, res) => {
     //     if(err) return res.status(400).send(err);
     //     return data;
     // })
-    const id = req.params.id;
 
-    await User.findByIdAndUpdate(id,req.body,(err,data)=>{
-        if(err) res.status(400).send(err);
-        res.send("User has been upated");
-    })
+       // res.send(req.body);
 
-
-    // working code
-    // await User.findOneAndUpdate(id, req.body).then((data) => {
-    //     // res.send(data);
-    //     if (!data) {
-    //         res.status(404).send({
-    //             message: `Cannot update User`
-    //         });
-    //     } else {
-    //         res.send({ message: "User Details updated successfully." });
+    // await User.findByIdAndUpdate(id,req.body,(err,data)=>{
+    //     if(err) {
+    //         console.log(err);
+    //         res.status(400).send(err);
     //     }
-    // }).catch((err) => {
-    //     res.status(500).send(err);
-    // });
-
-});
-
-module.exports = router;
+    //     res.send("User has been upated");
+    // })
