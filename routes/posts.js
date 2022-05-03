@@ -27,7 +27,8 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
   let newPost = new Post({
     userId: req.body.userId,
     img: req.file.path,
-    caption: req.body.caption
+    caption: req.body.caption,
+    userName:req.body.userName
   })
 
   try {
@@ -84,7 +85,7 @@ router.put("/:id/like",verify, async (req, res) => {
 });
 
 // get all post 
-router.get("/",verify, paginatedResults(Post),async (req, res) => {
+router.get("/", paginatedResults(Post),async (req, res) => {
   // res.send("get route");
   try {
     let posts = res.paginatedResults;

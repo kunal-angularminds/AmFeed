@@ -34,6 +34,7 @@ router.get("/user/:id", verify, async (req, res) => {
 router.put('/edit-profile/:id', verify, upload.single('img'), async (req, res) => {
 
 
+
     // validating the input fields
     const { error, value } = updateValidation(req.body);
     if (error) {
@@ -46,22 +47,41 @@ router.put('/edit-profile/:id', verify, upload.single('img'), async (req, res) =
     user["img"] = req.file.path;
     // res.send(user);
 
-
     // // working code
-    let updatedUser = await User.findOneAndUpdate(id, user).then((data) => {
-        // res.send(data);
-        if (!data) {
-            return({
-                message: `Cannot update User`
-            });
-        } else {
-            return({ message: "User Details updated successfully." });
-        }
-    }).catch((err) => {
-        return err;
-    });
-    console.log(updatedUser);
-    res.send(updatedUser);
+    // let updatedUser = await User.findOneAndUpdate(id, user).then((data) => {
+    //     // res.send(data);
+    //     if (!data) {
+    //         return ({
+    //             message: `Cannot update User`
+    //         });
+    //     } else {
+    //         return ({ message: "User Details updated successfully." });
+    //     }
+    // }).catch((err) => {
+    //     return err;
+    // });
+    // console.log(updatedUser);
+    // res.send(updatedUser);
+
+    //    {User.findByIdAndUpdate(id, req.body, function (err, userInfo)}
+    //    {
+    //         if (err)
+    //             next(err);
+    //         else {
+    //             res.json({userInfo, status: "success", message: "User updated successfully!!!" });
+    //         }
+    //     });
+
+    try {
+
+        let updateduser =await User.findByIdAndUpdate(id,{$set: user})
+        let updateduser1 =await User.findById(id)
+        console.log(updateduser1)
+        res.status(200).json(updateduser1);
+
+    } catch (err) {
+        res.status(400).send(err);
+    }
 
 });
 
@@ -94,7 +114,7 @@ router.patch("/changePassword/:id", verify, async (req, res) => {
                     message: `Cannot update Password`
                 });
             } else {
-                res.send({ message: "User Password updated successfully."});
+                res.send({ message: "User Password updated successfully." });
             }
         }).catch((err) => {
             res.status(500).send(err);

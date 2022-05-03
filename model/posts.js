@@ -4,6 +4,9 @@ const postSchema = mongoose.Schema({
         userId: {
           type: String
         },
+        userName:{
+          type:String
+        },
         caption: {
           type: String,
           max: 500,
