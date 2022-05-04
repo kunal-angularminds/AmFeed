@@ -86,43 +86,45 @@ router.put('/edit-profile/:id', verify, upload.single('img'), async (req, res) =
 });
 
 // changing the password
-router.patch("/changePassword/:id", verify, async (req, res) => {
+router.put("/changePassword/:id", verify, async (req, res) => {
     let id = req.params.id;
     let user = await User.findById(id);
 
     // checking if the password is correct or not
     const validPass = await bcrypt.compare(req.body.currentPassword, user.password);
-
-    if (!validPass) {
-        res.status(400).send("Entered Current Password is invalid")
-    };
+    if (!validPass) return res.status(400).send("Invalid Password");
 
 
-    if (req.body.newPassword === req.body.confirmPassword) {
+    if(req.body.newPassword === req.body.confirmPassword) {
         // hash password
         const salt = await bcrypt.genSaltSync(10);
         const hashedPassword = bcrypt.hashSync(req.body.newPassword, salt);
 
-        let updatedPassword = {
-            password: hashedPassword
-        }
+        user.password = hashedPassword;
+
+        let updateduser =await User.findByIdAndUpdate(id,{$set: user});
+        let updateduser1 =await User.findById(id)
+        console.log(updateduser1)
+        res.send(updateduser1);
+
+
 
         // update the password
-        await User.findOneAndUpdate(id, updatedPassword).then((data) => {
-            if (!data) {
-                res.status(404).send({
-                    message: `Cannot update Password`
-                });
-            } else {
-                res.send({ message: "User Password updated successfully." });
-            }
-        }).catch((err) => {
-            res.status(500).send(err);
-        });
+        // await User.findOneAndUpdate(id, updatedPassword).then((data) => {
+        //     if (!data) {
+        //         res.status(404).send({
+        //             message: `Cannot update Password`
+        //         });
+        //     } else {
+        //         res.send({ message: "User Password updated successfully." });
+        //     }
+        // }).catch((err) => {
+        //     res.status(500).send(err);
+        // });
 
     }
     else {
-        res.status(400).send("New Password and Confirm Password do not match");
+        return res.status(400).send("New Password and Confirm Password do not match");
     }
 
 });

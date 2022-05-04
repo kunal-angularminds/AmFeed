@@ -4,11 +4,12 @@ const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 var cors = require('cors');
-
+const cookieParser = require('cookie-parser');
 const path = require('path');
 dotenv.config();
 
 const port = process.env.PORT
+
 
 // importing routes
 const authRoute = require('./routes/auth');
@@ -25,8 +26,16 @@ mongoose.connect(process.env.DB_CONNECT,()=>{
 // using middlewares
 app.use(express.json());
 app.use(express.urlencoded({extended:false}));
-app.use(cors());
+app.use(cors({
+    // Sets Access-Control-Allow-Origin to the UI URI
+    origin: process.env.UI_ROOT_URI,
+    // Sets Access-Control-Allow-Credentials to true
+    credentials: true,
+}));
+
 app.use("/images", express.static(path.join(__dirname, "images")));
+app.use(cookieParser());
+
 
 // app.get("/",(req,res)=>{
 //     res.send("Root Route");
