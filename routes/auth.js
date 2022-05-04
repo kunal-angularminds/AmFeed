@@ -7,6 +7,7 @@ const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const querystring = require('querystring');
 const axios = require('axios');
+const res = require('express/lib/response');
 
 router.post('/signup', async (req, res) => {
     // res.send("signup route");
@@ -135,7 +136,7 @@ function getTokens({
         .then((res) => res.data)
         .catch((error) => {
             console.error(`Failed to fetch auth tokens`);
-            throw new Error(error.message);
+            res.send(error.message);
         });
 }
 
@@ -146,9 +147,9 @@ router.get(`/${redirectURI}`, async (req, res) => {
 
     const { id_token, access_token } = await getTokens({
         code,
-        clientId: GOOGLE_CLIENT_ID,
-        clientSecret: GOOGLE_CLIENT_SECRET,
-        redirectUri: `${SERVER_ROOT_URI}/${redirectURI}`,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        redirectUri: `${process.env.SERVER_ROOT_URI}/${redirectURI}`,
     });
 
     // Fetch the user's profile with the access token and bearer
@@ -157,25 +158,26 @@ router.get(`/${redirectURI}`, async (req, res) => {
             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
             {
                 headers: {
-                    Authorization: `Bearer ${id_token}`,
+                    Authorization: `${id_token}`,
                 },
             }
         )
         .then((res) => res.data)
         .catch((error) => {
             console.error(`Failed to fetch user`);
-            throw new Error(error.message);
+            // throw new Error(error.message);
+            return res.send(error.message);
         });
 
-    const token = jwt.sign(googleUser, JWT_SECRET);
+    const token = jwt.sign(googleUser, process.env.TOKEN_SECRET);
 
-    res.cookie(COOKIE_NAME, token, {
+    res.cookie(process.env.COOKIE_NAME, token, {
         maxAge: 900000,
         httpOnly: true,
         secure: false,
     });
 
-    res.redirect(UI_ROOT_URI);
+    res.redirect(process.env.UI_ROOT_URI);
 });
 
 module.exports = router;

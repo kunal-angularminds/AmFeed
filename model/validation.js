@@ -41,6 +41,18 @@ let updateValidation = (data) => {
     return schema.validate(data);
 }
 
+let createPostValidation = (data)=>{
+    const schema = Joi.object({
+        userId : Joi.string().required(),
+        userName:Joi.string().required(),
+        caption:Joi.string(),
+        img:Joi.string()
+    });
+    return schema.validate(data);
+
+};
+
 module.exports.signupUserValidation = signupUserValidation;
 module.exports.loginValidation = loginValidation;
 module.exports.updateValidation = updateValidation;
+module.exports.createPostValidation = createPostValidation;

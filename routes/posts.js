@@ -7,7 +7,7 @@ const verify = require("./verifyToken");
 const upload = require('../upload');
 const Post = require('../model/posts');
 const paginatedResults = require('../middleware/pagination');
-
+const {createPostValidation} = require("../model/validation");
 // router.post("", upload.single("file"), (req, res) => {
 //     try {
 //       return res.status(200).json("File uploded successfully");
@@ -24,17 +24,24 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
     file: req.file,
     caption: req.body
   };
+
+  let user = await User.findById(req.body.userId);
+  // validating the input fields
+  const { error, value } = createPostValidation(req.body);
+  if (error) {
+      return res.status(400).send(error.details[0].message);
+  }
+
   let newPost = new Post({
     userId: req.body.userId,
     img: req.file.path,
     caption: req.body.caption,
-    userName:req.body.userName
+    userName:req.body.userName,
+    userImg : user.img
   })
 
+
   try {
-
-    console.log(newPost);
-
     let savedPost = await newPost.save();
     res.send(savedPost);
 
@@ -46,7 +53,7 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
 
 }, (error, req, res, next) => {
   res.status(400).send({ error: error.message })
-})
+});
 
 // comments route
 router.put("/:id/comment", verify,async (req, res) => {
