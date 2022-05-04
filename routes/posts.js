@@ -18,12 +18,14 @@ const {createPostValidation} = require("../model/validation");
 
 // For Single image upload (uploading post)
 router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
-  console.log(req.body);
-  console.log(req.file);
+  // console.log(req.body);
+  // console.log(req.file);
   let response = {
     file: req.file,
     caption: req.body
   };
+
+  res.send(req.body);
 
   let user = await User.findById(req.body.userId);
   // validating the input fields
@@ -49,7 +51,6 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
     res.status(400).send(err);
   }
 
-  // res.send(newPost);
 
 }, (error, req, res, next) => {
   res.status(400).send({ error: error.message })

@@ -9,7 +9,6 @@ const postSchema = mongoose.Schema({
         },
         caption: {
           type: String,
-          max: 500,
         },
         img: {
           type: String,
