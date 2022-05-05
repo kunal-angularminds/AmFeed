@@ -99,7 +99,7 @@ router.get("/", paginatedResults(Post),async (req, res) => {
     let posts = res.paginatedResults;
     res.status(200).send(posts);
   }catch(err){
-    res.status(500).json(err);
+    return res.status(500).json(err);
   }
 });
 
