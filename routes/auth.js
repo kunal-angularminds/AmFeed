@@ -4,10 +4,10 @@ const { signupUserValidation, loginValidation, updateValidation } = require('../
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { OAuth2Client } = require('google-auth-library');
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const querystring = require('querystring');
 const axios = require('axios');
-const res = require('express/lib/response');
+const { google } = require('googleapis');
+const oauth2 = google.oauth2('v2');
 
 router.post('/signup', async (req, res) => {
     // res.send("signup route");
@@ -85,99 +85,160 @@ router.post('/login', async (req, res) => {
 
 
 // login with google ---------------------------
-const redirectURI = "auth/google";
-function getGoogleAuthURL() {
-    const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-    const options = {
-        redirect_uri: `${process.env.SERVER_ROOT_URI}/${redirectURI}`,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        access_type: "offline",
-        response_type: "code",
-        prompt: "consent",
-        scope: [
-            "https://www.googleapis.com/auth/userinfo.profile",
-            "https://www.googleapis.com/auth/userinfo.email",
-        ].join(" "),
-    };
+// const redirectURI = "auth/google";
+// function getGoogleAuthURL() {
+//     const rootUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+//     const options = {
+//         redirect_uri: `${process.env.SERVER_ROOT_URI}/${redirectURI}`,
+//         client_id: process.env.GOOGLE_CLIENT_ID,
+//         access_type: "offline",
+//         response_type: "code",
+//         prompt: "consent",
+//         scope: [
+//             "https://www.googleapis.com/auth/userinfo.profile",
+//             "https://www.googleapis.com/auth/userinfo.email",
+//         ].join(" "),
+//     };
 
-    return `${rootUrl}?${querystring.stringify(options)}`;
-}
+//     return `${rootUrl}?${querystring.stringify(options)}`;
+// }
 
 // Getting login URL
-router.get("/auth/google/url", (req, res) => {
-    return res.send(getGoogleAuthURL());
-});
+// router.get("/auth/google/url", (req, res) => {
+//     return res.send(getGoogleAuthURL());
+// });
 
-function getTokens({
-    code,
-    clientId,
-    clientSecret,
-    redirectUri,
-}) {
-    /*
-     * Uses the code to get tokens
-     * that can be used to fetch the user's profile
-     */
-    const url = "https://oauth2.googleapis.com/token";
-    const values = {
-        code,
-        client_id: clientId,
-        client_secret: clientSecret,
-        redirect_uri: redirectUri,
-        grant_type: "authorization_code",
-    };
+// async function getGoogleUser(code) {
+//     const  tokens  = await OAuth2Client.getToken(code);
+//     console.log(tokens);
+//     // Fetch the user's profile with the access token and bearer
+//     const googleUser = await axios
+//         .get(
+//             `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${tokens.access_token}`,
+//             {
+//                 headers: {
+//                     Authorization: `Bearer ${tokens.id_token}`,
+//                 },
+//             },
+//         )
+//         .then(res => res.data)
+//         .catch(error => {
+//             throw new Error(error.message);
+//         });
 
-    return axios
-        .post(url, querystring.stringify(values), {
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-        })
-        .then((res) => res.data)
-        .catch((error) => {
-            console.error(`Failed to fetch auth tokens`);
-            res.send(error.message);
-        });
-}
+//     return googleUser;
+// }
+
+
+// function getTokens({
+//     code,
+//     clientId,
+//     clientSecret,
+//     redirectUri,
+// }) {
+//     /*
+//      * Uses the code to get tokens
+//      * that can be used to fetch the user's profile
+//      */
+//     const url = "https://oauth2.googleapis.com/token";
+//     const values = {
+//         code,
+//         client_id: clientId,
+//         client_secret: clientSecret,
+//         redirect_uri: redirectUri,
+//         grant_type: "authorization_code",
+//     };
+
+//     return axios
+//         .post(url, querystring.stringify(values), {
+//             headers: {
+//                 "Content-Type": "application/x-www-form-urlencoded",
+//             },
+//         })
+//         .then((res) => res.data)
+//         .catch((error) => {
+//             console.error(`Failed to fetch auth tokens`);
+//             console.log(error);
+//             res.send(error.message);
+//         });
+// }
+
+// const Oauth2Client = new google.auth.OAuth2(
+//     process.env.GOOGLE_CLIENT_ID,
+//     process.env.GOOGLE_CLIENT_SECRET,
+//     process.env.SERVER_ROOT_URI // this must match your google api settings
+// );
+
+// function getConnectionUrl() {
+//     return Oauth2Client.generateAuthUrl({
+//         access_type: 'offline',
+//         prompt: 'consent',
+//         scope: [
+//             "https://www.googleapis.com/auth/userinfo.profile",
+//             "https://www.googleapis.com/auth/userinfo.email",
+//         ].join(" ")
+//     });
+// }
+
+// function getUserDetails(code) {
+//     return Oauth2Client.getToken(code)   //use code to get the token
+//         .then(({ tokens }) => {
+//             Oauth2Client.setCredentials(tokens);     //add token to the Oauth credentials
+//         })
+//         .then(() => {
+//             return oauth2.userinfo.get({ auth: Oauth2Client });  // get userinfo with the newly updated credentials
+//         })
+// }
 
 
 // Getting the user from Google with the code
-router.get(`/${redirectURI}`, async (req, res) => {
-    const code = req.query.code;
-
-    const { id_token, access_token } = await getTokens({
-        code,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        redirectUri: `${process.env.SERVER_ROOT_URI}/${redirectURI}`,
-    });
+// router.get(`redirectURI`, async (req, res) => {
+//     const code = {code:req.query.code};
+//     try {
+//         const data = getUserDetails(code);
+//         console.log(data);
+        // const data = await getGoogleUser(code);
+        // console.log(data);
+        // const         { id_token, access_token } = await getTokens({
+        //     code,
+        //     clientId: process.env.GOOGLE_CLIENT_ID,
+        //     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        //     redirectUri: `${process.env.SERVER_ROOT_URI}/${redirectURI}`,
+        // });
+    //     console.log(data);
+    // } catch (err) {
+    //     return res.send(err);
+    // }
 
     // Fetch the user's profile with the access token and bearer
-    const googleUser = await axios
-        .get(
-            `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
-            {
-                headers: {
-                    Authorization: `${id_token}`,
-                },
-            }
-        )
-        .then((res) => res.data)
-        .catch((error) => {
-            console.error(`Failed to fetch user`);
-            // throw new Error(error.message);
-            return res.send(error.message);
-        });
+    // const googleUser = await axios
+    //     .get(
+    //         `https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${access_token}`,
+    //         {
+    //             headers: {
+    //                 Authorization: `${id_token}`,
+    //             },
+    //         }
+    //     )
+    //     .then((res) => res.data)
+    //     .catch((error) => {
+    //         console.error(`Failed to fetch user`);
+    //         // throw new Error(error.message);
+    //         return res.send(error.message);
+    //     });
 
-    const token = jwt.sign(googleUser, process.env.TOKEN_SECRET);
+    // const token = jwt.sign(googleUser, process.env.TOKEN_SECRET);
 
-    res.cookie(process.env.COOKIE_NAME, token, {
-        maxAge: 900000,
-        httpOnly: true,
-        secure: false,
-    });
+    // res.cookie(process.env.COOKIE_NAME, token, {
+    //     maxAge: 900000,
+    //     httpOnly: true,
+    //     secure: false,
+    // });
 
-    res.redirect(process.env.UI_ROOT_URI);
-});
+    // res.redirect(process.env.UI_ROOT_URI);
+
+   
+
+// });
 
 module.exports = router;

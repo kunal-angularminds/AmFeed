@@ -25,7 +25,6 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
     caption: req.body
   };
 
-  res.send(req.body);
 
   let user = await User.findById(req.body.userId);
   // validating the input fields
@@ -93,7 +92,7 @@ router.put("/:id/like",verify, async (req, res) => {
 });
 
 // get all post 
-router.get("/", paginatedResults(Post),async (req, res) => {
+router.get("/",verify,paginatedResults(Post),async (req, res) => {
   // res.send("get route");
   try {
     let posts = res.paginatedResults;
