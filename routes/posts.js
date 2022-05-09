@@ -17,7 +17,7 @@ const {createPostValidation} = require("../model/validation");
 //   });
 
 // For Single image upload (uploading post)
-router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
+router.post('/uploadImage', verify,upload.single('img'),paginatedResults(Post), async (req, res) => {
   // console.log(req.body);
   // console.log(req.file);
   let response = {
@@ -41,10 +41,10 @@ router.post('/uploadImage', verify,upload.single('img'), async (req, res) => {
     userImg : user.img
   })
 
-
   try {
-    let savedPost = await newPost.save();
-    res.send(savedPost);
+    await newPost.save();
+    let posts = res.paginatedResults;
+    res.status(200).send(posts);
 
   } catch (err) {
     res.status(400).send(err);
